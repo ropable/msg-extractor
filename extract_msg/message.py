@@ -40,6 +40,7 @@ class Message(olefile.OleFileIO):
         # WARNING DO NOT MANUALLY MODIFY PREFIX. Let the program set it.
         self.__path = path
         self.__attachmentClass = attachmentClass
+        self._attachments = []
 
         try:
             olefile.OleFileIO.__init__(self, path)
@@ -449,23 +450,19 @@ class Message(olefile.OleFileIO):
         """
         Returns a list of all attachments.
         """
-        try:
-            return self._attachments
-        except AttributeError:
-            # Get the attachments
-            attachmentDirs = []
+        # Get the attachments
+        attachmentDirs = []
 
-            for dir_ in self.listDir():
-                if dir_[len(self.__prefixList)].startswith('__attach') and dir_[
-                    len(self.__prefixList)] not in attachmentDirs:
-                    attachmentDirs.append(dir_[len(self.__prefixList)])
+        for dir_ in self.listDir():
+            if dir_[len(self.__prefixList)].startswith('__attach') and dir_[len(self.__prefixList)] not in attachmentDirs:
+                attachmentDirs.append(dir_[len(self.__prefixList)])
 
-            self._attachments = []
+        self._attachments = []
 
-            for attachmentDir in attachmentDirs:
-                self._attachments.append(self.__attachmentClass(self, attachmentDir))
+        for attachmentDir in attachmentDirs:
+            self._attachments.append(self.__attachmentClass(self, attachmentDir))
 
-            return self._attachments
+        return self._attachments
 
     @property
     def recipients(self):
@@ -479,8 +476,7 @@ class Message(olefile.OleFileIO):
             recipientDirs = []
 
             for dir_ in self.listDir():
-                if dir_[len(self.__prefixList)].startswith('__recip') and dir_[
-                    len(self.__prefixList)] not in recipientDirs:
+                if dir_[len(self.__prefixList)].startswith('__recip') and dir_[len(self.__prefixList)] not in recipientDirs:
                     recipientDirs.append(dir_[len(self.__prefixList)])
 
             self._recipients = []
@@ -503,7 +499,7 @@ class Message(olefile.OleFileIO):
             2. self.filename if useFileName
             3. {date} {subject}
         """
-        if customFilename != None and customFilename != '':
+        if customFilename is not None and customFilename != '':
             dirName = customFilename
         else:
             if useFileName:
@@ -528,7 +524,7 @@ class Message(olefile.OleFileIO):
 
                 dirName = dirName + ' ' + subject
 
-        if customPath != None and customPath != '':
+        if customPath is not None and customPath != '':
             if customPath[-1] != '/' or customPath[-1] != '\\':
                 customPath += '/'
             dirName = customPath + dirName
