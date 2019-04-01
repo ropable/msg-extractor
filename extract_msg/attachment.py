@@ -18,7 +18,7 @@ class Attachment(object):
     Message class used to create the attachment.
     """
 
-    def __init__(self, msg, dir_):
+    def __init__(self, msg, dir_, debug=False):
         """
         :param msg: the Message instance that the attachment belongs to.
         :param dir_: the directory inside the msg file where the attachment is located.
@@ -26,6 +26,7 @@ class Attachment(object):
         object.__init__(self)
         self.__msg = msg
         self.__dir = dir_
+        self.debug = debug
         self.__props = Properties(
             self.msg._getStream([self.__dir, '__properties_version1.0']),
             constants.TYPE_ATTACHMENT)
@@ -44,7 +45,7 @@ class Attachment(object):
             self.__data = msg._getStream([dir_, '__substg1.0_37010102'])
         elif msg.Exists([dir_, '__substg1.0_3701000D']):
             if (self.props['37050003'].value & 0x7) != 0x5:
-                if not debug:
+                if not self.debug:
                     raise NotImplementedError(
                         'Current version of extract_msg does not support extraction of containers that are not embeded msg files.')
                     # TODO add implementation
